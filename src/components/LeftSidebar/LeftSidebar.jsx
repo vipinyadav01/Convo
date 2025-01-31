@@ -1,18 +1,18 @@
 import React from 'react';
-import "./LeftSidebar.css";
+import './LeftSidebar.css';
 import assets from '../../assets/assets';
 
 const LeftSidebar = () => {
     return (
-        <div className='ls'>
-            <div className='ls-top'>
+        <div className="ls">
+            <div className="ls-top">
                 <div className="ls-nav">
-                    <img src={assets.logo} className='logo' alt="Logo" />
+                    <img src={assets.logo} className="logo" alt="Logo" />
                     <div className="menu">
                         <img src={assets.menu_icon} alt="Menu Icon" />
                         <div className="sub-menu">
                             <p>Edit Profile</p>
-                            <br />
+                            <hr />
                             <p>Logout</p>
                         </div>
                     </div>
@@ -23,18 +23,18 @@ const LeftSidebar = () => {
                 </div>
             </div>
             <div className="ls-list">
-                {Array(12).fill("").map((item, index) => (
+                {Array.from({ length: 12 }, (_, index) => (
                     <div key={index} className="friends">
                         <img src={assets.profile_img} alt="Profile" />
                         <div>
                             <p>Vipin Yadav</p>
-                            <span>Hello,How are you?</span>
+                            <span>Hello, How are you?</span>
                         </div>
                     </div>
                 ))}
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default LeftSidebar;

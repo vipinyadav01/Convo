@@ -1,8 +1,8 @@
 .chat-box {
-    height: 74vh;
+    height: 80vh;
     position: relative;
     background-color: #f1f5ff;
-    border-radius: 12px;
+    border-radius: 1px;
     display: flex;
     flex-direction: column;
 }

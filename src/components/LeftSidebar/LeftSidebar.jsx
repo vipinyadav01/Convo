@@ -19,7 +19,7 @@ import { toast } from "react-toastify";
 
 const LeftSidebar = () => {
     const navigate = useNavigate();
-    const { userData, chatData, chatUser, setChatUser, setMessagesId, messageId, chatVisible, setChatVisible = [] } = useContext(AppContext);
+    const { userData, chatData, chatUser, setChatUser, setMessagesId, messageId, chatVisible, setChatVisible } = useContext(AppContext);
     const [user, setUser] = useState(null);
     const [showSearch, setShowSearch] = useState(false);
 
@@ -60,28 +60,12 @@ const LeftSidebar = () => {
 
         try {
             const messageRef = collection(db, "messages");
-            const chatsRef = collection(db, "chats");
             const newMessage = doc(messageRef);
-
-            await setDoc(newMessage, {
-                createdAt: Date.now(),
-                messages: [],
-            });
+            await setDoc(newMessage, { createdAt: Date.now(), messages: [] });
 
             const timestamp = Date.now();
-
-            const currentUserChatRef = doc(chatsRef, userData.id);
-            const searchedUserChatRef = doc(chatsRef, user.id);
-
-            const currentUserChatDoc = await getDoc(currentUserChatRef);
-            if (!currentUserChatDoc.exists()) {
-                await setDoc(currentUserChatRef, { chatsData: [] });
-            }
-
-            const searchedUserChatDoc = await getDoc(searchedUserChatRef);
-            if (!searchedUserChatDoc.exists()) {
-                await setDoc(searchedUserChatRef, { chatsData: [] });
-            }
+            const currentUserChatRef = doc(db, "chats", userData.id);
+            const searchedUserChatRef = doc(db, "chats", user.id);
 
             await updateDoc(currentUserChatRef, {
                 chatsData: arrayUnion({
@@ -103,41 +87,20 @@ const LeftSidebar = () => {
                 }),
             });
 
-
             toast.success("Chat added successfully!");
             setUser(null);
-            setShowSearch(false);
-            const uSnap = await getDoc(doc(db, "users", user.id));
-            const uData = uSnap.data();
-            setChat({
-                messageId: newMessageRef.id,
-                lastMessage: "",
-                rId: user.id,
-                updatedAt: Date.now(),
-                messageSeen: true,
-                userData: uData
-            })
             setShowSearch(false);
             setChatVisible(true);
         } catch (error) {
             toast.error("Error adding chat");
         }
     };
-    useEffect(() => {
-        const chatData = chatData.map(async () => {
-            if (chatUser) {
-                const userRef = doc(db, "users", chatUser.userData.id);
-                const userSnap = await getDoc(userRef);
-                const userData = userSnap.data();
-                setChatUser(prev => ({ ...prev, userData: userData }));
-            }
-        });
-        updateChatUserData();
-    }, [chatData])
+
     const setChat = async (item) => {
         try {
             setMessagesId(item.messageId);
             setChatUser(item);
+            setChatVisible(true);
 
             const userChatsRef = doc(db, "chats", userData.id);
             const userChatsSnapshot = await getDoc(userChatsRef);
@@ -145,16 +108,11 @@ const LeftSidebar = () => {
             if (userChatsSnapshot.exists()) {
                 const userChatData = userChatsSnapshot.data();
                 const updatedChats = userChatData.chatsData.map((chat) =>
-                    chat.messageId === item.messageId
-                        ? { ...chat, messageSeen: true }
-                        : chat
+                    chat.messageId === item.messageId ? { ...chat, messageSeen: true } : chat
                 );
 
-                await updateDoc(userChatsRef, {
-                    chatsData: updatedChats,
-                });
+                await updateDoc(userChatsRef, { chatsData: updatedChats });
             }
-            setChatVisible(true);
         } catch (error) {
             toast.error(error.message);
         }
@@ -185,28 +143,24 @@ const LeftSidebar = () => {
                         <img src={user.avatar} alt="" />
                         <p>{user.name}</p>
                     </div>
-                ) : Array.isArray(chatData) && chatData.length > 0 ? (
+                ) : chatData.length > 0 ? (
                     chatData.map((item, index) => (
                         <div
                             onClick={() => setChat(item)}
                             key={index}
-                            className={`friends ${item.messageSeen || item.messageId === messageId ? "" : "border"} ${item.messageId === messageId ? "active" : ""}`}
+                            className={`friends ${!item.messageSeen ? "border" : ""} ${item.messageId === messageId ? "active" : ""}`}
                         >
                             <img src={item.userData.avatar} alt="" />
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
                                 <p style={{ margin: 0 }}>{item.userData.name}</p>
                                 {item.lastMessage && (
-                                    <span style={{ fontSize: '0.8em', color: '#666' }}>
-                                        {item.lastMessage}
-                                    </span>
+                                    <span style={{ fontSize: '0.8em', color: '#666' }}>{item.lastMessage}</span>
                                 )}
                             </div>
                         </div>
                     ))
                 ) : (
-                    <h1 style={{ textAlign: 'center', color: '#666', marginTop: '20px', fontSize: '1.2em' }}>
-                        No chats available.
-                    </h1>
+                    <h1 style={{ textAlign: 'center', color: '#666', marginTop: '20px', fontSize: '1.2em' }}>No chats available.</h1>
                 )}
             </div>
         </div>

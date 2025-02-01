@@ -84,7 +84,6 @@ const AppContextProvider = (props) => {
 
             const chatItems = snap.data().chatsData;
             if (!Array.isArray(chatItems) || chatItems.length === 0) {
-                console.error("chatsData is not an array, is empty, or is undefined");
                 setChatData([]);
                 return;
             }

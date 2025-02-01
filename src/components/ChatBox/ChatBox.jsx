@@ -10,6 +10,7 @@ const ChatBox = () => {
     const { userData, chatUser, messagesId } = useContext(AppContext);
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState([]);
+    const [chatVisible, setChatVisible] = useState(true);
     const chatContainerRef = useRef(null);
 
     useEffect(() => {
@@ -71,8 +72,10 @@ const ChatBox = () => {
             return;
         }
 
-        const userIDs = [chatUser.rId, userData.id];
+        const userIDs = [chatUser?.rId, userData.id];
         for (const id of userIDs) {
+            if (!id) continue;
+
             const userChatsRef = doc(db, "chats", id);
             const userChatsSnapshot = await getDoc(userChatsRef);
 
@@ -90,11 +93,7 @@ const ChatBox = () => {
                     await updateDoc(userChatsRef, {
                         chatsData: userChatData.chatsData
                     });
-                } else {
-                    toast.error("Chat index not found.");
                 }
-            } else {
-                toast.error("User chat snapshot does not exist.");
             }
         }
     };
@@ -132,38 +131,51 @@ const ChatBox = () => {
         }
     }, [messagesId]);
 
-    const isOnline = Date.now() - chatUser.userData.lastSeen <= 300000;
-
-    return chatUser ? (
-        <div className={`chat-box ${chatVisible ? '' : 'hidden'}`}>
-            <div className="chat-user">
-                <img src={chatUser.userData.avatar} alt="User" className="profile-pic" />
-                <div className="user-info">
-                    <p>{chatUser.userData.name}</p>
-                    <span className="online-status">
-                        {isOnline ? (
-                            <img src={assets.green_dot} alt="Online" />
-                        ) : (
-                            <span style={{
-                                width: '10px',
-                                height: '10px',
-                                backgroundColor: 'red',
-                                borderRadius: '50%',
-                                display: 'inline-block'
-                            }} title="Offline"></span>
-                        )}
-                    </span>
-                    <span className="user-status">{isOnline ? "Online" : "Offline"}</span>
-                </div>
-                <img src={assets.help_icon} className="help" alt="Help" />
-                <img onClick={() => setChatVisible(false)} src={assets.arrow_icon} className='arrow' alt='' />
+    if (!chatUser) {
+        return (
+            <div className="chat-welcome">
+                <img src={assets.logo_icon} alt="" />
+                <p>Chat Any time any Where</p>
             </div>
+        );
+    }
+
+    const isOnline = chatUser?.userData
+        ? Date.now() - chatUser.userData.lastSeen <= 300000
+        : false;
+
+    return (
+        <div className={`chat-box ${!chatUser ? 'hidden' : ''} ${!chatVisible ? 'hidden' : ''}`}>
+            {chatUser?.userData && (
+                <div className="chat-user">
+                    <img src={chatUser.userData.avatar} alt="User" className="profile-pic" />
+                    <div className="user-info">
+                        <p>{chatUser.userData.name}</p>
+                        <span className="online-status">
+                            {isOnline ? (
+                                <img src={assets.green_dot} alt="Online" />
+                            ) : (
+                                <span style={{
+                                    width: '10px',
+                                    height: '10px',
+                                    backgroundColor: 'red',
+                                    borderRadius: '50%',
+                                    display: 'inline-block'
+                                }} title="Offline"></span>
+                            )}
+                        </span>
+                        <span className="user-status">{isOnline ? "Online" : "Offline"}</span>
+                    </div>
+                    <img src={assets.help_icon} className="help" alt="Help" />
+                    <img onClick={() => setChatVisible(!chatVisible)} src={assets.arrow_icon} className='arrow' alt='' />
+                </div>
+            )}
 
             <div className="chat-msg" ref={chatContainerRef}>
                 {messages.map((msg, index) => (
                     <div key={index} className={msg.sId === userData.id ? 's-msg' : 'r-msg'}>
                         <div className="msg-info">
-                            <img src={msg.sId === userData.id ? userData.avatar : chatUser.userData.avatar} alt="User" />
+                            <img src={msg.sId === userData.id ? userData.avatar : chatUser?.userData?.avatar} alt="User" />
                             <p>{msg.createdAt?.toDate ? new Date(msg.createdAt.toDate()).toLocaleTimeString() : "Time N/A"}</p>
                         </div>
                         {msg.image ? (
@@ -199,11 +211,6 @@ const ChatBox = () => {
                     <img src={assets.send_button} alt="Send" />
                 </button>
             </form>
-        </div>
-    ) : (
-        <div className={`chat-welcome ${chatVisible ? '' : 'hidden'}`}>
-            <img src={assets.logo_icon} alt="" />
-            <p>Chat Any time any Where</p>
         </div>
     );
 };

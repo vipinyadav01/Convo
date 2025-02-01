@@ -228,8 +228,6 @@
 .chat-user .arrow{
     display: none;
 }
-
-/* Responsive Design */
 @media (max-width:900px){
     .chat-box{
         width: 100%;

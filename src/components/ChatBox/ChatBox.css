@@ -225,46 +225,20 @@
     font-weight: 500;
     color: #383838;
 }
-
-/* Responsive Design */
-@media screen and (max-width: 768px) {
-    .chat-box {
-        height: 80vh;
-        border-radius: 0;
-    }
-
-    .chat-user {
-        border-radius: 0;
-    }
-
-    .msg {
-        font-size: 13px;
-    }
-
-    .msg-img {
-        max-width: 200px;
-    }
+.chat-user .arrow{
+    display: none;
 }
 
-@media screen and (max-width: 480px) {
-    .chat-user {
-        padding: 10px;
+/* Responsive Design */
+@media (max-width:900px){
+    .chat-box{
+        width: 100%;
+        justify-content: center;
     }
-
-    .profile-pic {
-        width: 32px;
-        height: 32px;
+    .chat-user .arrow{
+        display: block;
     }
-
-    .user-info p {
-        font-size: 14px;
-    }
-
-    .msg-img {
-        max-width: 150px;
-    }
-
-    .chat-input {
-        padding: 10px;
+    .chat-user .help{
+        display: none;
     }
 }

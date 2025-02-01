@@ -96,97 +96,10 @@
     text-decoration: underline;
   }
 
-  /* Responsive Styles */
-  @media (max-width: 768px) {
+ @media (max-width: 768px) {
     .login {
-      padding: 15px;
-      gap: 20px;
-    }
-
-    .login-logo {
-      width: 150px;
-    }
-
-    .login-form {
-      padding: 20px;
-      gap: 12px;
-    }
-
-    .login-form h2 {
-      font-size: 18px;
-    }
-
-    .form-input {
-      padding: 8px;
-      font-size: 14px;
-    }
-
-    .login-form button {
-      padding: 10px;
-      font-size: 14px;
-    }
-
-    .login-term {
-      font-size: 11px;
-    }
-
-    .login-toggle {
-      font-size: 12px;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .login {
-      padding: 20px;
-      gap: 15px;
-      display: flex;
-     flex-direction: column;
-    }
-
-    .login-logo {
-      width: 120px;
-    }
-
-    .login-form {
-      padding: 15px;
-      gap: 10px;
-    }
-
-    .login-form h2 {
-      font-size: 16px;
-    }
-
-    .form-input {
-      padding: 6px;
-      font-size: 12px;
-    }
-
-    .login-form button {
-      padding: 8px;
-      font-size: 12px;
-    }
-
-    .login-term {
-      font-size: 10px;
-    }
-
-    .login-toggle {
-      font-size: 11px;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .login {
-      gap: 40px;
-    }
-
-    .login-logo {
-      width: 250px;
-      margin-right: 110px;
-    }
-
-    .login-form {
-      padding: 30px 40px;
-      max-width: 450px;
+      flex-direction: column;
+        gap: 30px;
+        justify-content: center;
     }
   }

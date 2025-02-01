@@ -12,6 +12,7 @@ const AppContextProvider = (props) => {
     const [messagesId, setMessagesId] = useState(null);
     const [messages, setMessages] = useState([]);
     const [chatUser, setChatUser] = useState(null);
+    const [chatVisible, setChatVisible] = useState(false);
 
     const loadUserData = async (uid) => {
         if (!uid) return;
@@ -32,6 +33,15 @@ const AppContextProvider = (props) => {
             }
 
             await updateDoc(userRef, { lastSeen: Date.now() });
+            if (userInfo.id === chatUser?.userData?.id) {
+                setChatUser(prev => ({
+                    ...prev,
+                    userData: {
+                        ...prev.userData,
+                        lastSeen: Date.now()
+                    }
+                }));
+            }
         } catch (error) {
             console.error("Error loading user data:", error);
         }
@@ -48,6 +58,18 @@ const AppContextProvider = (props) => {
 
         return () => unsubscribe();
     }, []);
+    useEffect(() => {
+        if (messagesId) {
+            const unSub = onSnapshot(doc(db, "messages", messagesId), (doc) => {
+                if (doc.exists()) {
+                    const messagesData = doc.data().messages;
+                    setMessages(messagesData ? messagesData.reverse() : []);
+                }
+            });
+
+            return () => unSub();
+        }
+    }, [messagesId]);
 
     useEffect(() => {
         if (!userData) return;
@@ -105,6 +127,8 @@ const AppContextProvider = (props) => {
         setMessages,
         chatUser,
         setChatUser,
+        chatVisible,
+        setChatVisible
     };
 
     return (

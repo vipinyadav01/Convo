@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "./LeftSidebar.css";
 import assets from "../../assets/assets";
 import { useNavigate } from "react-router-dom";
@@ -19,7 +19,7 @@ import { toast } from "react-toastify";
 
 const LeftSidebar = () => {
     const navigate = useNavigate();
-    const { userData, chatData, chatUser, setChatUser, setMessagesId, messageId = [] } = useContext(AppContext);
+    const { userData, chatData, chatUser, setChatUser, setMessagesId, messageId, chatVisible, setChatVisible = [] } = useContext(AppContext);
     const [user, setUser] = useState(null);
     const [showSearch, setShowSearch] = useState(false);
 
@@ -103,14 +103,37 @@ const LeftSidebar = () => {
                 }),
             });
 
+
             toast.success("Chat added successfully!");
             setUser(null);
             setShowSearch(false);
+            const uSnap = await getDoc(doc(db, "users", user.id));
+            const uData = uSnap.data();
+            setChat({
+                messageId: newMessageRef.id,
+                lastMessage: "",
+                rId: user.id,
+                updatedAt: Date.now(),
+                messageSeen: true,
+                userData: uData
+            })
+            setShowSearch(false);
+            setChatVisible(true);
         } catch (error) {
             toast.error("Error adding chat");
         }
     };
-
+    useEffect(() => {
+        const chatData = chatData.map(async () => {
+            if (chatUser) {
+                const userRef = doc(db, "users", chatUser.userData.id);
+                const userSnap = await getDoc(userRef);
+                const userData = userSnap.data();
+                setChatUser(prev => ({ ...prev, userData: userData }));
+            }
+        });
+        updateChatUserData();
+    }, [chatData])
     const setChat = async (item) => {
         try {
             setMessagesId(item.messageId);
@@ -131,13 +154,14 @@ const LeftSidebar = () => {
                     chatsData: updatedChats,
                 });
             }
+            setChatVisible(true);
         } catch (error) {
             toast.error(error.message);
         }
     };
 
     return (
-        <div className="ls">
+        <div className={`ls ${chatVisible ? "hidden" : ""}`}>
             <div className="ls-top">
                 <div className="ls-nav">
                     <img src={assets.logo || "/placeholder.svg"} className="logo" alt="Logo" />

@@ -132,20 +132,31 @@ const ChatBox = () => {
         }
     }, [messagesId]);
 
+    const isOnline = Date.now() - chatUser.userData.lastSeen <= 300000;
+
     return chatUser ? (
-        <div className="chat-box">
+        <div className={`chat-box ${chatVisible ? '' : 'hidden'}`}>
             <div className="chat-user">
                 <img src={chatUser.userData.avatar} alt="User" className="profile-pic" />
                 <div className="user-info">
-                    <p>
-                        {chatUser.userData.name}
-                        <span className="online-status">
-                            <img className="dot" src={assets.green_dot} alt="" />
-                        </span>
-                    </p>
-                    <span className="user-status">Online</span>
+                    <p>{chatUser.userData.name}</p>
+                    <span className="online-status">
+                        {isOnline ? (
+                            <img src={assets.green_dot} alt="Online" />
+                        ) : (
+                            <span style={{
+                                width: '10px',
+                                height: '10px',
+                                backgroundColor: 'red',
+                                borderRadius: '50%',
+                                display: 'inline-block'
+                            }} title="Offline"></span>
+                        )}
+                    </span>
+                    <span className="user-status">{isOnline ? "Online" : "Offline"}</span>
                 </div>
                 <img src={assets.help_icon} className="help" alt="Help" />
+                <img onClick={() => setChatVisible(false)} src={assets.arrow_icon} className='arrow' alt='' />
             </div>
 
             <div className="chat-msg" ref={chatContainerRef}>
@@ -190,7 +201,7 @@ const ChatBox = () => {
             </form>
         </div>
     ) : (
-        <div className='chat-welcome'>
+        <div className={`chat-welcome ${chatVisible ? '' : 'hidden'}`}>
             <img src={assets.logo_icon} alt="" />
             <p>Chat Any time any Where</p>
         </div>

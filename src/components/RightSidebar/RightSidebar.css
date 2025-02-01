@@ -1,68 +1,85 @@
-.rs{
+/* Right Sidebar Container */
+.rs {
     color: white;
     background-color: #001030;
     position: relative;
     height: 80vh;
     overflow-y: scroll;
 }
-.rs-profile{
+
+/* Profile Section */
+.rs-profile {
     padding-top: 60px;
     text-align: center;
     max-width: 70%;
-    margin:auto;
+    margin: auto;
 }
-.rs-profile img{
+
+.rs-profile img {
     width: 110px;
     border-radius: 50%;
     aspect-ratio: 1/1;
 }
-.rs-profile h3{
+
+.rs-profile h3 {
     font-size: 18px;
     font-weight: 400;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 5px;
-    margin: 5px 0px;
+    margin: 5px 0;
 }
-.rs-profile p{
+
+.rs-profile p {
     font-size: 10px;
     font-weight: 300;
-    margin: 5px 0px;
-    opacity: 80%;
+    margin: 5px 0;
+    opacity: 0.8;
 }
-.rs hr{
-    margin: 10px 0px;
+
+/* Horizontal Rule */
+.rs hr {
+    margin: 10px 0;
     border: 0.5px solid #fff;
-    opacity: 50%;
+    opacity: 0.5;
 }
-.rs-media{
-  padding: 0px 20px;
-  font-size: 13px;
+
+/* Media Section */
+.rs-media {
+    padding: 0 20px;
+    font-size: 13px;
 }
-.rs-media div{
+
+.rs-media div {
     max-height: 180px;
     overflow-y: scroll;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 7px;
     margin-top: 8px;
 }
-.rs-media div img{
+
+.rs-media div img {
     width: 60px;
     border-radius: 5px;
     cursor: pointer;
 }
-.rs-media div img:hover{
-    opacity: 80%;
+
+.rs-media div img:hover {
+    opacity: 0.8;
 }
-.rs-media div img.active{
+
+.rs-media div img.active {
     border: 2px solid #fff;
 }
-.rs-media div img.active:hover{
-    opacity: 100%;
+
+.rs-media div img.active:hover {
+    opacity: 1;
 }
-.rs button{
+
+/* Logout Button */
+.rs button {
     position: absolute;
     bottom: 20px;
     left: 50%;
@@ -70,11 +87,18 @@
     background: #077eff;
     color: white;
     border: none;
-    font-size: 300;
+    font-size: 14px;
     padding: 10px 65px;
     border-radius: 20px;
     cursor: pointer;
 }
-.rs button:hover{
+
+.rs button:hover {
     background: #0a6cff;
+}
+
+@media (max-width: 900px) {
+    .rs {
+        display: none;
+    }
 }

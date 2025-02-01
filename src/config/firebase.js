@@ -1,18 +1,24 @@
+// Import the necessary functions from the SDKs
 import { initializeApp } from "firebase/app";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { getFirestore, setDoc, doc } from "firebase/firestore";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from "firebase/auth";
+import { getFirestore, setDoc, doc, collection, getDocs, query, where } from "firebase/firestore";
+import { getAnalytics } from "firebase/analytics";
 import { toast } from "react-toastify";
 
+// Firebase configuration for the new project
 const firebaseConfig = {
-    apiKey: "AIzaSyBhS5zF6fDfmNsuHir7isZwcGoFm9rZ5c8",
-    authDomain: "convo2-gs.firebaseapp.com",
-    projectId: "convo2-gs",
-    storageBucket: "convo2-gs.firebasestorage.app",
-    messagingSenderId: "138836407988",
-    appId: "1:138836407988:web:aeb9826761e134eeb849e1"
+    apiKey: "AIzaSyC20XR5oNmBYDnVjITGcMhhdToKdEEGj2M",
+    authDomain: "convo2-2.firebaseapp.com",
+    projectId: "convo2-2",
+    storageBucket: "convo2-2.firebasestorage.app",
+    messagingSenderId: "110954263927",
+    appId: "1:110954263927:web:e9b2b823db93d9cc4c1d72",
+    measurementId: "G-S5P5HDC0QS"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
@@ -67,4 +73,25 @@ const logout = async () => {
     }
 };
 
-export { signup, login, logout, auth, db };
+const resetPass = async (email) => {
+    if (!email) {
+        toast.error("Email is required");
+        return null;
+    }
+    try {
+        const userRef = collection(db, "users");
+        const q = query(userRef, where("email", "==", email));
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+            await sendPasswordResetEmail(auth, email);
+            toast.success("Password reset email sent!");
+        } else {
+            toast.error("Email does not exist in the database");
+        }
+    } catch (error) {
+        console.error("Reset password error", error);
+        toast.error(error.message);
+    }
+};
+
+export { signup, login, logout, auth, db, resetPass };

@@ -17,7 +17,6 @@ const App = () => {
             if (user) {
                 await loadUserData(user.uid);
             } else {
-                console.log('No user');
                 navigate('/');
             }
         });

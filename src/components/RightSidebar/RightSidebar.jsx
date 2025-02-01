@@ -12,7 +12,7 @@ const RightSidebar = () => {
 
     useEffect(() => {
         try {
-            let tempVal = [];
+            const tempVal = [];
             messages.forEach((msg) => {
                 if (msg.image) {
                     tempVal.push(msg.image);
@@ -38,7 +38,7 @@ const RightSidebar = () => {
         <div className='rs'>
             <div className="rs-profile">
                 <img src={chatUser?.userData?.avatar} alt="" />
-                <h3>{chatUser?.userData?.name} <img src={assets.green_dot} className='dot' alt='' /></h3>
+                <h3>{Date.now() - chatUser.userData.lastSeen <= 300000 ? <img className='dot' src={assets.green_dot} alt="Online" /> : null}{chatUser?.userData?.name} </h3>
                 <p>{chatUser?.chatData?.bio}</p>
             </div>
             <hr />

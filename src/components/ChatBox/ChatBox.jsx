@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useContext } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import './ChatBox.css';
 import assets from '../../assets/assets';
 import { AppContext } from '../../context/AppContext';
@@ -54,6 +54,8 @@ const ChatBox = () => {
                             })
                         });
                         updateLastMessage("[Image]");
+                    } else {
+                        toast.error("Message ID is not set.");
                     }
                 } catch (error) {
                     toast.error(error.message);
@@ -64,6 +66,11 @@ const ChatBox = () => {
     };
 
     const updateLastMessage = async (lastMessage) => {
+        if (!messagesId) {
+            toast.error("Message ID is not set.");
+            return;
+        }
+
         const userIDs = [chatUser.rId, userData.id];
         for (const id of userIDs) {
             const userChatsRef = doc(db, "chats", id);
@@ -71,7 +78,7 @@ const ChatBox = () => {
 
             if (userChatsSnapshot.exists()) {
                 const userChatData = userChatsSnapshot.data();
-                const chatIndex = userChatData.chatsData.findIndex((c) => c.messagesId === messagesId);
+                const chatIndex = userChatData.chatsData.findIndex((c) => c.messageId === messagesId);
 
                 if (chatIndex !== -1) {
                     userChatData.chatsData[chatIndex].lastMessage = lastMessage.slice(0, 30);
@@ -83,7 +90,11 @@ const ChatBox = () => {
                     await updateDoc(userChatsRef, {
                         chatsData: userChatData.chatsData
                     });
+                } else {
+                    toast.error("Chat index not found.");
                 }
+            } else {
+                toast.error("User chat snapshot does not exist.");
             }
         }
     };
@@ -100,6 +111,8 @@ const ChatBox = () => {
                 });
                 updateLastMessage(input);
                 setInput('');
+            } else {
+                toast.error("Message ID is not set or input is empty.");
             }
         } catch (error) {
             toast.error(error.message);
@@ -146,7 +159,6 @@ const ChatBox = () => {
                             <img src={msg.image} alt="Shared" className="shared-image" />
                         ) : (
                             <p className="msg">{msg.text}</p>
-
                         )}
                     </div>
                 ))}

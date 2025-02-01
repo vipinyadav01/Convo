@@ -4,12 +4,12 @@ import { getFirestore, setDoc, doc } from "firebase/firestore";
 import { toast } from "react-toastify";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBPXTS7Y7SVTsMPjMjKmgHuaQE--BmwENM",
-    authDomain: "convo-gs.firebaseapp.com",
-    projectId: "convo-gs",
-    storageBucket: "convo-gs.firebasestorage.app",
-    messagingSenderId: "853908886589",
-    appId: "1:853908886589:web:47350f5eb3d4015707c654"
+    apiKey: "AIzaSyBhS5zF6fDfmNsuHir7isZwcGoFm9rZ5c8",
+    authDomain: "convo2-gs.firebaseapp.com",
+    projectId: "convo2-gs",
+    storageBucket: "convo2-gs.firebasestorage.app",
+    messagingSenderId: "138836407988",
+    appId: "1:138836407988:web:aeb9826761e134eeb849e1"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -50,7 +50,6 @@ const login = async (email, password) => {
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         console.log("User logged in:", userCredential.user);
-
     } catch (error) {
         console.error("Login error:", error);
         const errorMessage = error.message.split('/')[1].split('-').join(' ');

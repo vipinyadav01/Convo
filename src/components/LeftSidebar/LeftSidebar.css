@@ -2,6 +2,8 @@
     background: #001030;
     color: white;
     height: 80vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .ls-top {
@@ -44,7 +46,8 @@
 .menu:hover .sub-menu {
     display: block;
 }
-.sub-menu hr{
+
+.sub-menu hr {
     border: none;
     height: 1px;
     background: #a4a4a4;
@@ -70,6 +73,7 @@
     outline: none;
     color: white;
     font-size: 11px;
+    flex-grow: 1;
 }
 
 .ls-search input::placeholder {
@@ -79,14 +83,8 @@
 .ls-list {
     display: flex;
     flex-direction: column;
-    height: 70%;
-    overflow-y: scroll;
-}
-
-.friends img {
-    width: 35px;
-    aspect-ratio: 1/1;
-    border-radius: 50%;
+    height: 100%;
+    overflow-y: auto;
 }
 
 .friends {
@@ -101,8 +99,14 @@
     background: #002670;
 }
 
-.friends:hover span {
-    color: white;
+.friends.active {
+    background: #00358a;
+}
+
+.friends img {
+    width: 35px;
+    aspect-ratio: 1/1;
+    border-radius: 50%;
 }
 
 .friends div {
@@ -115,7 +119,96 @@
     font-size: 12px;
 }
 
-.sub-menu p{
+.sub-menu p {
     cursor: pointer;
     font-size: 12px;
+}
+
+.friends.border {
+    border: 3px solid #07fff3;
+}
+
+.friends.border div span {
+    color: #07fff3;
+}
+
+@media screen and (max-width: 768px) {
+    .ls {
+        height: 100vh;
+    }
+
+    .ls-top {
+        padding: 15px;
+    }
+
+    .ls-nav .logo {
+        max-width: 100px;
+    }
+
+    .ls-nav .menu img {
+        max-height: 18px;
+    }
+
+    .menu .sub-menu {
+        width: 120px;
+        padding: 15px;
+    }
+
+    .ls-search {
+        padding: 8px 10px;
+        gap: 8px;
+    }
+
+    .ls-search input {
+        font-size: 10px;
+    }
+
+    .friends {
+        padding: 8px 15px;
+        gap: 8px;
+    }
+
+    .friends img {
+        width: 30px;
+    }
+
+    .friends span {
+        font-size: 10px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .ls-top {
+        padding: 10px;
+    }
+
+    .ls-nav .logo {
+        max-width: 80px;
+    }
+
+    .ls-search {
+        padding: 6px 8px;
+        gap: 6px;
+    }
+
+    .ls-search img {
+        width: 14px;
+    }
+
+    .ls-search input {
+        font-size: 9px;
+    }
+
+    .friends {
+        padding: 6px 10px;
+        gap: 6px;
+    }
+
+    .friends img {
+        width: 28px;
+    }
+
+    .friends span {
+        font-size: 9px;
+    }
 }

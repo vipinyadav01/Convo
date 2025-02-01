@@ -15,8 +15,7 @@ const App = () => {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
-                console.log('User:', user);
-                await loadUserData(user.uid); 
+                await loadUserData(user.uid);
             } else {
                 console.log('No user');
                 navigate('/');

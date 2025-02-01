@@ -14,11 +14,9 @@ const upload = async (file) => {
         if (response.ok) {
             return data.secure_url;
         } else {
-            console.error("Upload failed:", data);
             return null;
         }
     } catch (error) {
-        console.error("Error uploading image:", error);
         return null;
     }
 };

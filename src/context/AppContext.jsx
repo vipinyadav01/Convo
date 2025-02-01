@@ -8,7 +8,10 @@ export const AppContext = createContext();
 const AppContextProvider = (props) => {
     const navigate = useNavigate();
     const [userData, setUserData] = useState(null);
-    const [chatData, setChatData] = useState(null);
+    const [chatData, setChatData] = useState([]);
+    const [messagesId, setMessagesId] = useState(null);
+    const [messages, setMessages] = useState([]);
+    const [chatUser, setChatUser] = useState(null);
 
     const loadUserData = async (uid) => {
         if (!uid) return;
@@ -29,7 +32,6 @@ const AppContextProvider = (props) => {
             }
 
             await updateDoc(userRef, { lastSeen: Date.now() });
-
         } catch (error) {
             console.error("Error loading user data:", error);
         }
@@ -48,22 +50,48 @@ const AppContextProvider = (props) => {
     }, []);
 
     useEffect(() => {
-        if (userData) {
-            const chatRef = doc(db, "chats", userData.id);
-            const unSub = onSnapshot(chatRef, async (snap) => {
-                const chatItems = snap.data().chatsData;
-                const tempData = [];
-                for (const item of chatItems) {
-                    const userRef = doc(db, "users", item.rid);
-                    const userSnap = await getDoc(userRef);
-                    const userData = userSnap.data();
-                    tempData.push({ ...item, userData });
-                }
-                setChatData(tempData.sort((a, b) => b.updatedAt - a.updatedAt));
-            });
-            return () => unSub();
-        }
-    }, [userData])
+        if (!userData) return;
+
+        const chatRef = doc(db, "chats", userData.id);
+        const unSub = onSnapshot(chatRef, async (snap) => {
+            if (!snap.exists()) {
+                console.error("Chat document does not exist");
+                setChatData([]);
+                return;
+            }
+
+            const chatItems = snap.data().chatsData;
+            if (!Array.isArray(chatItems) || chatItems.length === 0) {
+                console.error("chatsData is not an array, is empty, or is undefined");
+                setChatData([]);
+                return;
+            }
+
+            const tempData = await Promise.all(
+                chatItems.map(async (item) => {
+                    if (!item.rid) return null;
+
+                    try {
+                        const userRef = doc(db, "users", item.rid);
+                        const userSnap = await getDoc(userRef);
+                        if (!userSnap.exists()) {
+                            console.error("User document does not exist for rid:", item.rid);
+                            return null;
+                        }
+                        const userData = userSnap.data();
+                        return { ...item, userData };
+                    } catch (err) {
+                        console.error("Error fetching user data:", err);
+                        return null;
+                    }
+                })
+            );
+
+            setChatData(tempData.filter(Boolean).sort((a, b) => b.updatedAt - a.updatedAt));
+        });
+
+        return () => unSub();
+    }, [userData]);
 
     const value = {
         userData,
@@ -71,6 +99,12 @@ const AppContextProvider = (props) => {
         chatData,
         setChatData,
         loadUserData,
+        messagesId,
+        setMessagesId,
+        messages,
+        setMessages,
+        chatUser,
+        setChatUser,
     };
 
     return (

@@ -14,42 +14,40 @@ const AppContextProvider = (props) => {
     const [chatUser, setChatUser] = useState(null);
     const [chatVisible, setChatVisible] = useState(false);
 
-    const loadUserData = async (uid) => {
-        if (!uid) return;
-
-        try {
-            const userRef = doc(db, "users", uid);
-            const userSnap = await getDoc(userRef);
-
-            if (!userSnap.exists()) return;
-
-            const userInfo = userSnap.data();
-            setUserData(userInfo);
-
-            if (userInfo.avatar && userInfo.name) {
-                navigate('/chat');
-            } else {
-                navigate('/profile');
-            }
-
-            await updateDoc(userRef, { lastSeen: Date.now() });
-            if (userInfo.id === chatUser?.userData?.id) {
-                setChatUser(prev => ({
-                    ...prev,
-                    userData: {
-                        ...prev.userData,
-                        lastSeen: Date.now()
-                    }
-                }));
-            }
-        } catch (error) {
-            console.error("Error loading user data:", error);
-        }
-    };
-
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
             if (user) {
+                const loadUserData = async (uid) => {
+                    try {
+                        const userRef = doc(db, "users", uid);
+                        const userSnap = await getDoc(userRef);
+
+                        if (!userSnap.exists()) return;
+
+                        const userInfo = userSnap.data();
+                        setUserData(userInfo);
+
+                        if (userInfo.avatar && userInfo.name) {
+                            navigate('/chat');
+                        } else {
+                            navigate('/profile');
+                        }
+
+                        await updateDoc(userRef, { lastSeen: Date.now() });
+                        if (userInfo.id === chatUser?.userData?.id) {
+                            setChatUser(prev => ({
+                                ...prev,
+                                userData: {
+                                    ...prev.userData,
+                                    lastSeen: Date.now()
+                                }
+                            }));
+                        }
+                    } catch (error) {
+                        console.error("Error loading user data:", error);
+                    }
+                };
+
                 loadUserData(user.uid);
             } else {
                 setUserData(null);
@@ -57,59 +55,72 @@ const AppContextProvider = (props) => {
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [navigate, chatUser]);
+
     useEffect(() => {
-        if (messagesId) {
-            const unSub = onSnapshot(doc(db, "messages", messagesId), (doc) => {
+        if (!messagesId) return;
+
+        const unSub = onSnapshot(
+            doc(db, "messages", messagesId),
+            (doc) => {
                 if (doc.exists()) {
                     const messagesData = doc.data().messages;
                     setMessages(messagesData ? messagesData.reverse() : []);
                 }
-            });
+            },
+            (error) => {
+                console.error("Error fetching messages:", error);
+            }
+        );
 
-            return () => unSub();
-        }
+        return () => unSub();
     }, [messagesId]);
 
     useEffect(() => {
-        if (!userData) return;
+        if (!userData || !userData.id) return;
 
         const chatRef = doc(db, "chats", userData.id);
-        const unSub = onSnapshot(chatRef, async (snap) => {
-            if (!snap.exists()) {
-                console.error("Chat document does not exist");
-                setChatData([]);
-                return;
-            }
+        const unSub = onSnapshot(
+            chatRef,
+            async (snap) => {
+                if (!snap.exists()) {
+                    console.error("Chat document does not exist");
+                    setChatData([]);
+                    return;
+                }
 
-            const chatItems = snap.data().chatsData;
-            if (!Array.isArray(chatItems) || chatItems.length === 0) {
-                setChatData([]);
-                return;
-            }
+                const chatItems = Array.isArray(snap.data().chatsData) ? snap.data().chatsData : [];
+                if (chatItems.length === 0) {
+                    setChatData([]);
+                    return;
+                }
 
-            const tempData = await Promise.all(
-                chatItems.map(async (item) => {
-                    if (!item.rid) return null;
+                const tempData = await Promise.all(
+                    chatItems.map(async (item) => {
+                        if (!item.rid) return null;
 
-                    try {
-                        const userRef = doc(db, "users", item.rid);
-                        const userSnap = await getDoc(userRef);
-                        if (!userSnap.exists()) {
-                            console.error("User document does not exist for rid:", item.rid);
+                        try {
+                            const userRef = doc(db, "users", item.rid);
+                            const userSnap = await getDoc(userRef);
+                            if (!userSnap.exists()) {
+                                console.error("User document does not exist for rid:", item.rid);
+                                return null;
+                            }
+                            const userData = userSnap.data();
+                            return { ...item, userData };
+                        } catch (err) {
+                            console.error("Error fetching user data:", err);
                             return null;
                         }
-                        const userData = userSnap.data();
-                        return { ...item, userData };
-                    } catch (err) {
-                        console.error("Error fetching user data:", err);
-                        return null;
-                    }
-                })
-            );
+                    })
+                );
 
-            setChatData(tempData.filter(Boolean).sort((a, b) => b.updatedAt - a.updatedAt));
-        });
+                setChatData(tempData.filter(Boolean).sort((a, b) => b.updatedAt - a.updatedAt));
+            },
+            (error) => {
+                console.error("Error fetching chat data:", error);
+            }
+        );
 
         return () => unSub();
     }, [userData]);
@@ -119,7 +130,6 @@ const AppContextProvider = (props) => {
         setUserData,
         chatData,
         setChatData,
-        loadUserData,
         messagesId,
         setMessagesId,
         messages,

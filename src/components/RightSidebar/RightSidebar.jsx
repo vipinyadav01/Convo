@@ -12,13 +12,12 @@ const RightSidebar = () => {
 
     useEffect(() => {
         try {
-            const tempVal = [];
-            messages.forEach((msg) => {
-                if (msg.image) {
-                    tempVal.push(msg.image);
-                }
-            });
-            setMsgImages(tempVal);
+            if (!messages || messages.length === 0) {
+                setMsgImages([]);
+            } else {
+                const images = messages.filter(msg => msg.image).map(msg => msg.image);
+                setMsgImages(images);
+            }
             setLoading(false);
         } catch (err) {
             setError("Failed to load images");
@@ -26,20 +25,20 @@ const RightSidebar = () => {
         }
     }, [messages]);
 
-    if (loading) {
-        return <div className='rs'>Loading...</div>;
-    }
-
-    if (error) {
-        return <div className='rs'>{error}</div>;
-    }
+    if (loading) return <div className='rs'>Loading...</div>;
+    if (error) return <div className='rs'>{error}</div>;
 
     return chatUser ? (
         <div className='rs'>
             <div className="rs-profile">
-                <img src={chatUser?.userData?.avatar} alt="" />
-                <h3>{Date.now() - chatUser.userData.lastSeen <= 300000 ? <img className='dot' src={assets.green_dot} alt="Online" /> : null}{chatUser?.userData?.name} </h3>
-                <p>{chatUser?.chatData?.bio}</p>
+                <img src={chatUser?.userData?.avatar || "/placeholder.svg"} alt="User Avatar" />
+                <h3>
+                    {chatUser?.userData?.lastSeen && (Date.now() - chatUser.userData.lastSeen <= 300000) ? (
+                        <img className='dot' src={assets.green_dot} alt="Online" />
+                    ) : null}
+                    {chatUser?.userData?.name || "Unknown User"}
+                </h3>
+                <p>{chatUser?.userData?.bio || "No bio available"}</p>
             </div>
             <hr />
             <div className='rs-media'>
@@ -47,18 +46,30 @@ const RightSidebar = () => {
                 <div className='media-grid'>
                     {msgImages.length > 0 ? (
                         msgImages.map((url, index) => (
-                            <img onClick={() => window.open(url)} key={index} src={url} alt='media' />
+                            <img
+                                onClick={() => {
+                                    try {
+                                        window.open(url, "_blank");
+                                    } catch (error) {
+                                        console.error("Error opening image:", error);
+                                    }
+                                }}
+                                key={index}
+                                src={url}
+                                alt='Media'
+                                style={{ cursor: 'pointer' }}
+                            />
                         ))
                     ) : (
                         <p>No media available.</p>
                     )}
                 </div>
             </div>
-            <button onClick={() => logout()}>Logout</button>
+            <button onClick={logout}>Logout</button>
         </div>
     ) : (
         <div className='rs'>
-            <button onClick={() => logout()}>Logout</button>
+            <button onClick={logout}>Logout</button>
         </div>
     );
 }

@@ -7,10 +7,8 @@ import { db } from '../../config/firebase';
 import { toast } from 'react-toastify';
 
 const ChatBox = () => {
-    const { userData, chatUser, messagesId } = useContext(AppContext);
+    const { userData, chatUser, messagesId, messages, setMessages, chatVisible, setChatVisible } = useContext(AppContext);
     const [input, setInput] = useState('');
-    const [messages, setMessages] = useState([]);
-    const [chatVisible, setChatVisible] = useState(true);
     const chatContainerRef = useRef(null);
 
     useEffect(() => {
@@ -27,7 +25,13 @@ const ChatBox = () => {
                 try {
                     const img = new Image();
                     img.src = e.target.result;
-                    await new Promise((resolve) => (img.onload = resolve));
+                    await new Promise((resolve) => {
+                        img.onload = resolve;
+                        img.onerror = () => {
+                            throw new Error('Failed to load image');
+                        };
+                    });
+
                     const canvas = document.createElement('canvas');
                     const maxSize = 800;
                     let width = img.width;
@@ -133,7 +137,7 @@ const ChatBox = () => {
 
     if (!chatUser) {
         return (
-            <div className="chat-welcome">
+            <div className={`chat-welcome ${chatVisible ? "" : "hidden"}`}>
                 <img src={assets.logo_icon} alt="" />
                 <p>Chat Any time any Where</p>
             </div>
@@ -145,7 +149,7 @@ const ChatBox = () => {
         : false;
 
     return (
-        <div className={`chat-box ${!chatUser ? 'hidden' : ''} ${!chatVisible ? 'hidden' : ''}`}>
+        <div className={`chat-box ${chatVisible ? "" : "hidden"}`}>
             {chatUser?.userData && (
                 <div className="chat-user">
                     <img src={chatUser.userData.avatar} alt="User" className="profile-pic" />
@@ -167,7 +171,7 @@ const ChatBox = () => {
                         <span className="user-status">{isOnline ? "Online" : "Offline"}</span>
                     </div>
                     <img src={assets.help_icon} className="help" alt="Help" />
-                    <img onClick={() => setChatVisible(!chatVisible)} src={assets.arrow_icon} className='arrow' alt='' />
+                    <img onClick={() => setChatVisible(false)} src={assets.arrow_icon} className='arrow' alt='' />
                 </div>
             )}
 

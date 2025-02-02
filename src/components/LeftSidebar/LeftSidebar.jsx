@@ -36,9 +36,9 @@ const LeftSidebar = () => {
             const q = query(userRef, where("username", "==", input));
             const querySnap = await getDocs(q);
 
-            if (!querySnap.empty && querySnap.docs[0].data().id !== userData.id) {
+            if (!querySnap.empty && querySnap.docs[0].data().id !== userData?.id) {
                 const searchedUser = querySnap.docs[0].data();
-                const userExists = chatData.some((chat) => chat.id === searchedUser.id);
+                const userExists = chatData?.some((chat) => chat.id === searchedUser.id);
 
                 if (!userExists) {
                     setUser(searchedUser);
@@ -52,11 +52,12 @@ const LeftSidebar = () => {
             setShowSearch(true);
         } catch (error) {
             setShowSearch(false);
+            toast.error("Error searching for user");
         }
     };
 
     const addChat = async () => {
-        if (!user) return;
+        if (!user || !userData) return;
 
         try {
             const messageRef = collection(db, "messages");
@@ -98,6 +99,8 @@ const LeftSidebar = () => {
 
     const setChat = async (item) => {
         try {
+            if (!item || !item.messageId || !userData) return;
+
             setMessagesId(item.messageId);
             setChatUser(item);
             setChatVisible(true);
@@ -113,6 +116,7 @@ const LeftSidebar = () => {
 
                 await updateDoc(userChatsRef, { chatsData: updatedChats });
             }
+            setChatVisible(true);
         } catch (error) {
             toast.error(error.message);
         }
@@ -140,19 +144,19 @@ const LeftSidebar = () => {
             <div className="ls-list">
                 {showSearch && user ? (
                     <div onClick={addChat} className="friends add-user">
-                        <img src={user.avatar} alt="" />
+                        <img src={user.avatar || "/placeholder.svg"} alt="" />
                         <p>{user.name}</p>
                     </div>
-                ) : chatData.length > 0 ? (
+                ) : chatData && chatData.length > 0 ? (
                     chatData.map((item, index) => (
                         <div
                             onClick={() => setChat(item)}
                             key={index}
                             className={`friends ${!item.messageSeen ? "border" : ""} ${item.messageId === messageId ? "active" : ""}`}
                         >
-                            <img src={item.userData.avatar} alt="" />
+                            <img src={item.userData?.avatar || "/placeholder.svg"} alt="" />
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <p style={{ margin: 0 }}>{item.userData.name}</p>
+                                <p style={{ margin: 0 }}>{item.userData?.name || "Unknown User"}</p>
                                 {item.lastMessage && (
                                     <span style={{ fontSize: '0.8em', color: '#666' }}>{item.lastMessage}</span>
                                 )}

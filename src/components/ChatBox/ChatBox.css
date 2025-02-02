@@ -6,7 +6,7 @@
     flex-direction: column;
 }
 .chat-user {
-    padding: 15px;
+    padding: 10px;
     display: flex;
     align-items: center;
     gap: 15px;
@@ -16,8 +16,8 @@
 }
 
 .profile-pic {
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     object-fit: cover;
 }
@@ -232,6 +232,9 @@
     .chat-box{
         width: 100%;
         justify-content: center;
+    }
+    .chat-user{
+        padding: 10;
     }
     .chat-user .arrow{
         display: block;

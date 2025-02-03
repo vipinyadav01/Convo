@@ -12,7 +12,7 @@ const AppContextProvider = (props) => {
     const [messagesId, setMessagesId] = useState(null);
     const [messages, setMessages] = useState([]);
     const [chatUser, setChatUser] = useState(null);
-    const [chatVisible, setChatVisible] = useState(false);
+    const [chatVisible, setChatVisible] = useState(true);
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
